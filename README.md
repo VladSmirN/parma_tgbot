@@ -2,10 +2,11 @@
 ```
 git clone https://github.com/VladSmirN/aiogram-bot-template
 cd /aiogram-bot-template
+Создайте файл .env в папке проекта 
+Напишите bot_token=19701....  в .env  .(Вместо 19701.... ваш токен)
 ```
 
 # Run Docker
 ```
-docker-compose build --build-arg token_setter=$env:bot_token
-docker-compose up
+docker-compose up --build 
 ```
