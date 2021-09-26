@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     environment:
         bot_token: ${bot_token}
+
   mongo:
     image: mongo
     restart: always
