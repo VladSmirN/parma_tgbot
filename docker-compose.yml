@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     environment:
         bot_token: ${bot_token}
+    volumes:
+      - ./bot/logs:/botname/logs
 
   mongo:
     image: mongo
@@ -14,6 +16,10 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - ./mongo/db-data:/data/db
+      - ./mongo/mongo-config:/data/configdb
+
 
   mongo-express:
     image: mongo-express
