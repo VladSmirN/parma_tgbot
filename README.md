@@ -5,7 +5,11 @@ cd /aiogram-bot-template
 ```
 
 # Run Docker
+Перед этим нужно создать файл ```.env```, внутри него указать токен. 
+``` 
+bot_token=your_token_here 
 ```
-docker-compose build --build-arg token_setter=$env:bot_token
-docker-compose up
+
+```
+docker-compose up --build 
 ```
