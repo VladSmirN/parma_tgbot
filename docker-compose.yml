@@ -3,9 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        token_setter:
-
+    environment:
+        bot_token: ${bot_token}
   mongo:
     image: mongo
     restart: always
