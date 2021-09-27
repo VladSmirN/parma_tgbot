@@ -1,13 +1,4 @@
 services:
-  telegam_bot:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-        bot_token: ${bot_token}
-    volumes:
-      - ./bot/logs:/botname/logs
-
   mongo:
     image: mongo
     restart: always
@@ -19,7 +10,6 @@ services:
     volumes:
       - ./mongo/db-data:/data/db
       - ./mongo/mongo-config:/data/configdb
-
 
   mongo-express:
     image: mongo-express
