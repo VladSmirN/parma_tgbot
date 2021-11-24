@@ -1,6 +1,15 @@
-# aiogram-bot-template
-Template for creating scalable bots with aiogram
+# Installation
+```
+git clone https://github.com/VladSmirN/aiogram-bot-template
+cd /aiogram-bot-template
+```
 
-### Bot examples:
-- https://github.com/Forden/DiscussRemoverBot (https://t.me/DiscussRemoverBot)
-- https://github.com/Forden/qbittorrent-bot
+# Run Docker
+Перед этим нужно создать файл ```.env```, внутри него указать токен. 
+``` 
+bot_token=your_token_here 
+```
+
+```
+docker-compose up --build 
+```

@@ -2,25 +2,24 @@ from typing import List, Tuple
 
 import aiojobs as aiojobs
 from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.redis import RedisStorage2
 from aiogram.types import ParseMode
 from aiohttp import web
 from loguru import logger
-
+from pyngrok import ngrok
 from data import config
 
+WEBHOOK_HOST = ngrok.connect(config.PORT, bind_tls=True).public_url
+WEBHOOK_URL = f"{WEBHOOK_HOST}{config.WEBHOOK_PATH}"
 
 # noinspection PyUnusedLocal
 async def on_startup(app: web.Application):
-    import middlewares
     import filters
     import handlers
-    middlewares.setup(dp)
     filters.setup(dp)
     handlers.errors.setup(dp)
     handlers.user.setup(dp)
-    logger.info('Configure Webhook URL to: {url}', url=config.WEBHOOK_URL)
-    await dp.bot.set_webhook(config.WEBHOOK_URL)
+    logger.info('Configure Webhook URL to: {url}', url=WEBHOOK_URL)
+    await dp.bot.set_webhook(WEBHOOK_URL)
 
 
 async def on_shutdown(app: web.Application):
@@ -49,7 +48,5 @@ async def init() -> web.Application:
 
 if __name__ == '__main__':
     bot = Bot(config.BOT_TOKEN, parse_mode=ParseMode.HTML, validate_token=True)
-    storage = RedisStorage2(**config.redis)
-    dp = Dispatcher(bot, storage=storage)
-
-    web.run_app(init())
+    dp = Dispatcher(bot)
+    web.run_app(init(), port=config.PORT)
