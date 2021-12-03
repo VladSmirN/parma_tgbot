@@ -11,3 +11,10 @@ class MainMenu(DefaultConstructor):
         ]
         return MainMenu._create_kb(actions, schema)
 
+    @staticmethod
+    def cancel():
+        schema = [1]
+        actions = [
+            'Закрыть'
+        ]
+        return MainMenu._create_kb(actions, schema)
