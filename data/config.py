@@ -10,7 +10,7 @@ LOGS_BASE_PATH = str(Path(__file__).parent.parent / 'logs')
 admins = []
 
 mongo = {
-    'hostname':  'localhost',
+    'hostname':  'mongo',
     'password': 'root',
     'username':  'example',
     'port': 27017,
