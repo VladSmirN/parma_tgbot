@@ -14,6 +14,7 @@ async def bot_interview(query: types.CallbackQuery, callback_data: dict, bot):
     ]
     await FormInterview.name.set()
     await bot.send_message(query['from']['id'], text='\n'.join(txt),reply_markup=keyboards.default.MainMenu.cancel())
+    await query.answer()
 
 
 async def process_name(message: types.Message, state: FSMContext):
@@ -112,6 +113,7 @@ async def process_date(query: types.CallbackQuery, callback_data: dict, bot, sta
     await bot.send_message(query['from']['id'],
                            text='\n'.join(txt),
                            reply_markup=keyboards.default.MainMenu.main_menu())
+    await query.answer()
 
 
 async def cancel_handler(message: types.Message, state: FSMContext):

@@ -26,3 +26,4 @@ async def bot_vacancy(query: types.CallbackQuery, callback_data: dict, bot):
     vacancy = await db.Vacancies.find_one({"order": int(callback_data['order'])})
     kb = keyboards.inline.Users.to_interview(int(callback_data['order']))
     await bot.send_message(query['from']['id'], reply_markup=kb, text='\n'.join(vacancy['description']))
+    await query.answer()
