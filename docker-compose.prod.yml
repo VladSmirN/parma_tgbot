@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     environment:
       bot_token: ${bot_token}
+      PROD_OR_DEV: ${PROD_OR_DEV}
+      NGROK_TOKEN: ${NGROK_TOKEN}
     volumes:
       - ./bot/logs:/botname/logs
 
