@@ -9,6 +9,7 @@ from pyngrok import ngrok
 from data import config
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
+ngrok.set_auth_token(config.NGROK_TOKEN)
 WEBHOOK_HOST = ngrok.connect(config.PORT, bind_tls=True).public_url
 WEBHOOK_URL = f"{WEBHOOK_HOST}{config.WEBHOOK_PATH}"
 
