@@ -7,7 +7,9 @@ from aiohttp import web
 from loguru import logger
 from pyngrok import ngrok
 from data import config
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
+ngrok.set_auth_token(config.NGROK_TOKEN)
 WEBHOOK_HOST = ngrok.connect(config.PORT, bind_tls=True).public_url
 WEBHOOK_URL = f"{WEBHOOK_HOST}{config.WEBHOOK_PATH}"
 
@@ -47,6 +49,8 @@ async def init() -> web.Application:
 
 
 if __name__ == '__main__':
+    logger.info('Configure Webhook   to: {url}', url=config.BOT_TOKEN)
     bot = Bot(config.BOT_TOKEN, parse_mode=ParseMode.HTML, validate_token=True)
-    dp = Dispatcher(bot)
+    storage = MemoryStorage()
+    dp = Dispatcher(bot, storage=storage)
     web.run_app(init(), port=config.PORT)

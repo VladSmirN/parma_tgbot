@@ -37,8 +37,8 @@ class InlineConstructor:
                         data[k] = a[k]
                     else:
                         break
-            if 'callback_data' in data:
-                data['callback_data'] = data['callback_data'][1].new(**data['callback_data'][0])
+            # if 'callback_data' in data:
+            #     data['callback_data'] = data['callback_data'][1].new(**data['callback_data'][0])
             if 'pay' in data:
                 if len(btns) != 0 and data['pay']:
                     raise ValueError('Платежная кнопка должна идти первой в клавиатуре')
