@@ -1,7 +1,9 @@
 from aiogram import Dispatcher
 from .start import *
+from .application_form import *
 import functools
 from filters.is_hr import HRFilter
+from keyboards.inline import *
 
 
 def callback(func, **kwargs):
@@ -13,5 +15,6 @@ def callback(func, **kwargs):
 
 def setup(dp: Dispatcher):
     dp.register_message_handler(bot_start, HRFilter())
+    dp.register_callback_query_handler(callback(change_status, bot=dp.bot), select_status_cb.filter())
 
 
