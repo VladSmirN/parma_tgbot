@@ -1,3 +1,4 @@
+![CodeQL](https://github.com/VladSmirN/parma_tgbot/actions/workflows/codeql-analysis.yml/badge.svg)
 # Installation
 ```
 git clone https://github.com/VladSmirN/aiogram-bot-template
