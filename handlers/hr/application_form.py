@@ -15,17 +15,32 @@ async def change_status(query: types.CallbackQuery, callback_data: dict, bot):
         await query.answer()
         return
 
+    hr = await db.HR.find_one({'telegram_id': query.from_user.id})
+
     application_form['status'] = callback_data['status']
     await db.ApplicationForm.replace_one({'_id': ObjectId(callback_data['application_form'])},
                                          application_form)
 
-    txt_to_user_accepted = [
-        f'Приходите на собеседование {application_form["vacancy_name"] }'
+
+
+    txt_to_user_deny= [
+        f'Здравствуйте, {application_form["name"]}!',
+        f'Большое спасибо за интерес, проявленный к вакансии {application_form["vacancy_name"]}.',
+        'К сожалению, в настоящий момент мы не готовы пригласить Вас на дальнейшее интервью по этой вакансии.',
+        'Мы внимательно ознакомились с Вашим резюме, и, возможно, вернемся к Вашей кандидатуре, когда у нас возникнет такая потребность.',
+        'С уважением,',
+        f'{hr["fio"]}'
+
     ]
 
-    txt_to_user_deny = [
-        f'Вам отказали {application_form["vacancy_name"] }(( '
+    txt_to_user_accepted = [
+        f'Здравствуйте, {application_form["name"]}, нас заинтересовала ваша анкета.',
+        'Ожидайте звонка от hr-специалиста в ближайшее время для подтверждения даты и места собеседования.',
+        f'С уважением, {hr["fio"]}',
+        f'{hr["phone"]}'
     ]
+
+
     txt_status = ''
     if callback_data['status'] == 'accepted':
         txt_status = '<b>Принято</b>'
