@@ -15,7 +15,7 @@ async def bot_vacancy_list(msg: types.Message):
     ]
     vacancies_list = []
 
-    for Vacancies in await db.Vacancies.find({'order': {'$lt': 5}}).to_list(length=100):
+    for Vacancies in await db.Vacancies.find({'order': {'$lt': 100}}).sort('order').to_list(length=100):
         vacancies_list.append(Vacancies)
 
     kb = keyboards.inline.Users.vacancy_list(vacancies_list)
