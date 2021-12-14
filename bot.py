@@ -19,6 +19,7 @@ async def on_startup(app: web.Application):
     import handlers
     filters.setup(dp)
     handlers.errors.setup(dp)
+    handlers.hr.setup(dp)
     handlers.user.setup(dp)
     logger.info('Configure Webhook URL to: {url}', url=WEBHOOK_URL)
     await dp.bot.set_webhook(WEBHOOK_URL)

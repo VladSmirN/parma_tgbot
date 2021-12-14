@@ -2,18 +2,23 @@ from aiogram import types
 from states.user import FormInterview
 from aiogram.dispatcher import FSMContext
 import keyboards
+from utils.db.mongo import BaseMongo
 
-
-async def bot_interview(query: types.CallbackQuery, callback_data: dict, bot):
+async def bot_interview(query: types.CallbackQuery, callback_data: dict, bot, state: FSMContext):
     """
     Callback for for the beginning of the form
     """
+
+    async with state.proxy() as data:
+        data['vacancy_order'] = int(callback_data['order'])
+
     txt = [
         'Пожалуйста ответьте на вопросы.',
         'Ваше ФИО:',
     ]
+
     await FormInterview.name.set()
-    await bot.send_message(query['from']['id'], text='\n'.join(txt),reply_markup=keyboards.default.MainMenu.cancel())
+    await bot.send_message(query['from']['id'], text='\n'.join(txt), reply_markup=keyboards.default.MainMenu.cancel())
     await query.answer()
 
 
@@ -103,15 +108,48 @@ async def process_date(query: types.CallbackQuery, callback_data: dict, bot, sta
     async with state.proxy() as data:
         data['date'] = callback_data['date']
 
-    await FormInterview.next()
-    txt = [
+    txt_to_user = [
         'Спасибо!',
         'Запрос отправлен HR. Скоро придет отклик.',
     ]
-    print(data)
+
+    db = BaseMongo.get_data_base()
+
+    vacancy = await db.Vacancies.find_one({"order": int(data['vacancy_order'])})
+
+    result = await db.ApplicationForm.insert_one({
+        "hr_telegram_id": vacancy['hr_telegram_id'],
+        "name": data['name'],
+        "phone": data['phone'],
+        "email": data['email'],
+        "resume": data['resume'],
+        "motivation": data['motivation'],
+        "date": data['date'],
+        "vacancy_order": data['vacancy_order'],
+        "vacancy_name": vacancy['name'],
+        "username_telegram": query['from']['username'],
+        "user_telegram_id": query['from']['id'],
+        "status": "waiting"
+    })
+
+    txt_to_hr = [
+        'Новый отклик!',
+        'Вакансия: ' + vacancy['name'],
+        'Username пользователя: ' + query['from']['username'],
+        'ФИО в анкете: ' + data['name'],
+        'Телефон: ' + data['phone'],
+        'Email: ' + data['email'],
+        'Резюме: ' + data['resume'],
+        'Почему выбрал эту вакансию: ' + data['motivation'],
+        'Выбраная дата: ' + data['date'],
+    ]
+    await bot.send_message(vacancy['hr_telegram_id'],
+                           text='\n'.join(txt_to_hr),
+                           reply_markup=keyboards.inline.HR.select_status(result.inserted_id))
+
     await state.finish()
     await bot.send_message(query['from']['id'],
-                           text='\n'.join(txt),
+                           text='\n'.join(txt_to_user),
                            reply_markup=keyboards.default.MainMenu.main_menu())
     await query.answer()
 
