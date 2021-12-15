@@ -3,6 +3,8 @@ from states.user import FormInterview
 from aiogram.dispatcher import FSMContext
 import keyboards
 from utils.db.mongo import BaseMongo
+from utils.calendar_helper import CalendarHelper
+
 
 async def bot_interview(query: types.CallbackQuery, callback_data: dict, bot, state: FSMContext):
     """
@@ -85,7 +87,6 @@ async def process_resume(message: types.Message, state: FSMContext):
 
     await FormInterview.next()
 
-
     await message.reply("Почему вас заинтересовала эта вакансия?")
 
 
@@ -93,65 +94,91 @@ async def process_motivation(message: types.Message, state: FSMContext):
     """
     Callback to process a message with motivation
     """
+
+    await FormInterview.next()
     async with state.proxy() as data:
         data['motivation'] = message.text
 
-    await FormInterview.next()
-    kb = keyboards.inline.Users.date_list(['01.01.2000', '02.01.2000', '02.01.2000'])
-    await message.reply("Выбирите дату для собеседования", reply_markup=kb)
+        date_list = []
+        db = BaseMongo.get_data_base()
+        vacancy = await db.Vacancies.find_one({"order": int(data['vacancy_order'])})
+        hr = await db.HR.find_one({"telegram_id": vacancy['hr_telegram_id']})
+        calendar_helper = CalendarHelper()
+        weekly_free_time = await calendar_helper.weekly_free_time(hr['email_outlook'])
+        data['email_outlook'] = hr['email_outlook']
+
+        id = 0
+        for event in weekly_free_time:
+            id += 1
+            day = event.start.strftime("%m/%d")
+            start_time = event.start.strftime("%H:%M")
+            end_time = event.start.strftime("%H:%M")
+            time_string = f'{day}  c {start_time} до {end_time}'
+            date_list.append({'date_str': time_string, 'id_event': id})
+            data[f'date_str_{id}'] = time_string
+            data[f'outlook_{id}'] = event.object_id
+        kb = keyboards.inline.Users.date_list(date_list)
+        await message.reply("Выбирите дату для собеседования", reply_markup=kb)
 
 
 async def process_date(query: types.CallbackQuery, callback_data: dict, bot, state: FSMContext):
     """
     Callback for handling a date button
     """
-    async with state.proxy() as data:
-        data['date'] = callback_data['date']
-
-    txt_to_user = [
-        'Спасибо!',
-        'Запрос отправлен HR. Скоро придет отклик.',
-    ]
 
     db = BaseMongo.get_data_base()
 
-    vacancy = await db.Vacancies.find_one({"order": int(data['vacancy_order'])})
+    async with state.proxy() as data:
 
-    result = await db.ApplicationForm.insert_one({
-        "hr_telegram_id": vacancy['hr_telegram_id'],
-        "name": data['name'],
-        "phone": data['phone'],
-        "email": data['email'],
-        "resume": data['resume'],
-        "motivation": data['motivation'],
-        "date": data['date'],
-        "vacancy_order": data['vacancy_order'],
-        "vacancy_name": vacancy['name'],
-        "username_telegram": query['from']['username'],
-        "user_telegram_id": query['from']['id'],
-        "status": "waiting"
-    })
+        date_str = data[f'date_str_{callback_data["id"]}']
+        email_outlook = data['email_outlook']
+        id_event_outlook = data[f'outlook_{callback_data["id"]}']
+        calendar_helper = CalendarHelper()
+        await calendar_helper.update_event(email_outlook,id_event_outlook, "На рассмотрение")
 
-    txt_to_hr = [
-        'Новый отклик!',
-        'Вакансия: ' + vacancy['name'],
-        'Username пользователя: ' + query['from']['username'],
-        'ФИО в анкете: ' + data['name'],
-        'Телефон: ' + data['phone'],
-        'Email: ' + data['email'],
-        'Резюме: ' + data['resume'],
-        'Почему выбрал эту вакансию: ' + data['motivation'],
-        'Выбраная дата: ' + data['date'],
-    ]
-    await bot.send_message(vacancy['hr_telegram_id'],
-                           text='\n'.join(txt_to_hr),
-                           reply_markup=keyboards.inline.HR.select_status(result.inserted_id))
+        txt_to_user = [
+            'Спасибо!',
+            'Запрос отправлен HR. Скоро придет отклик.',
+        ]
 
-    await state.finish()
-    await bot.send_message(query['from']['id'],
-                           text='\n'.join(txt_to_user),
-                           reply_markup=keyboards.default.MainMenu.main_menu())
-    await query.answer()
+        vacancy = await db.Vacancies.find_one({"order": int(data['vacancy_order'])})
+
+        result = await db.ApplicationForm.insert_one({
+            "hr_telegram_id": vacancy['hr_telegram_id'],
+            "name": data['name'],
+            "phone": data['phone'],
+            "email": data['email'],
+            "resume": data['resume'],
+            "motivation": data['motivation'],
+            "date": date_str,
+            "vacancy_order": data['vacancy_order'],
+            "vacancy_name": vacancy['name'],
+            "username_telegram": query['from']['username'],
+            "user_telegram_id": query['from']['id'],
+            "status": "waiting",
+            'id_event_outlook': id_event_outlook
+        })
+
+        txt_to_hr = [
+            'Новый отклик!',
+            'Вакансия: ' + vacancy['name'],
+            'Username пользователя: ' + query['from']['username'],
+            'ФИО в анкете: ' + data['name'],
+            'Телефон: ' + data['phone'],
+            'Email: ' + data['email'],
+            'Резюме: ' + data['resume'],
+            'Почему выбрал эту вакансию: ' + data['motivation'],
+            'Выбраная дата: ' + date_str,
+        ]
+        await bot.send_message(vacancy['hr_telegram_id'],
+                               text='\n'.join(txt_to_hr),
+                               reply_markup=keyboards.inline.HR.select_status(result.inserted_id))
+
+        await state.finish()
+        await bot.send_message(query['from']['id'],
+                               text='\n'.join(txt_to_user),
+                               reply_markup=keyboards.default.MainMenu.main_menu())
+        await query.answer()
 
 
 async def cancel_handler(message: types.Message, state: FSMContext):

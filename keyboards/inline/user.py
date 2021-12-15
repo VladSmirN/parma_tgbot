@@ -27,8 +27,8 @@ class Users():
     def date_list(date_list):
         buttons = []
         for date in date_list:
-            buttons.append(types.InlineKeyboardButton(text=date,
-                                                      callback_data=date_cb.new(date=date)))
+            buttons.append(types.InlineKeyboardButton(text=date['date_str'],
+                                                      callback_data=date_cb.new(id=date['id_event'])))
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(*buttons)
         return keyboard
