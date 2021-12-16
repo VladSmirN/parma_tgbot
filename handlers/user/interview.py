@@ -23,6 +23,11 @@ async def bot_interview(query: types.CallbackQuery, callback_data: dict, bot, st
     await bot.send_message(query['from']['id'], text='\n'.join(txt), reply_markup=keyboards.default.MainMenu.cancel())
     await query.answer()
 
+async def process_name_invalid(message: types.Message):
+    """
+    Callback for invalid name
+    """
+    return await message.reply("Ваш ФИО некорректный (пример - Иван Иванов Иванович).\nПожалуйста, введите еще раз.")
 
 async def process_name(message: types.Message, state: FSMContext):
     """
@@ -87,7 +92,14 @@ async def process_resume(message: types.Message, state: FSMContext):
 
     await FormInterview.next()
 
-    await message.reply("Почему вас заинтересовала эта вакансия?")
+    await message.reply("Почему Вас заинтересовала эта вакансия?")
+
+
+async def process_motivation_invalid(message: types.Message):
+    """
+    Callback for invalid motivation
+    """
+    return await message.reply("Вы написали слишком длинный текст, нужно уложиться в 256 символов.\nПожалуйста, введите еще раз.")
 
 
 async def process_motivation(message: types.Message, state: FSMContext):
