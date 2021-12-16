@@ -110,11 +110,8 @@ async def process_motivation(message: types.Message, state: FSMContext):
         id = 0
         for event in weekly_free_time:
             id += 1
-            day = event.start.strftime("%m/%d")
-            start_time = event.start.strftime("%H:%M")
-            end_time = event.start.strftime("%H:%M")
-            time_string = str(event.start)
-            #time_string = f'{day}  c {start_time} до {end_time}'
+            from datetime import datetime, timezone, timedelta
+            time_string = str(event.start.astimezone(timezone(timedelta(hours=5))))
             date_list.append({'date_str': time_string, 'id_event': id})
             data[f'date_str_{id}'] = time_string
             data[f'outlook_{id}'] = event.object_id
