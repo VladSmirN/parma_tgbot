@@ -109,10 +109,11 @@ async def process_motivation(message: types.Message, state: FSMContext):
 
         if not weekly_free_time:
             await state.finish()
-            await message.reply('В графике работы HR '
-                                'нет свободного времени на этой неделе.',
+            await message.reply('К сожалению, у HR сейчас '
+                                'нет свободного времени, попробуйте отправить отклик в другое время',
                                 reply_markup=keyboards.default.MainMenu.main_menu()
                                 )
+            return
 
         for index, event in enumerate(weekly_free_time):
             from datetime import timezone, timedelta
