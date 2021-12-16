@@ -133,7 +133,7 @@ async def process_date(query: types.CallbackQuery, callback_data: dict, bot, sta
         email_outlook = data['email_outlook']
         id_event_outlook = data[f'outlook_{callback_data["id"]}']
         calendar_helper = CalendarHelper()
-        await calendar_helper.update_event(email_outlook,id_event_outlook, "На рассмотрение")
+        await calendar_helper.update_event(email_outlook,id_event_outlook, "На рассмотрении")
 
         txt_to_user = [
             'Спасибо!',
