@@ -107,16 +107,17 @@ async def process_motivation(message: types.Message, state: FSMContext):
         weekly_free_time = await calendar_helper.weekly_free_time(hr['email_outlook'])
         data['email_outlook'] = hr['email_outlook']
 
-        id = 0
-        for event in weekly_free_time:
-            id += 1
-            from datetime import datetime, timezone, timedelta
-            time_string = str(event.start.astimezone(timezone(timedelta(hours=5))))
+        for id, event in enumerate(weekly_free_time):
+            from datetime import timezone, timedelta
+            new_dt = event.start.astimezone(timezone(timedelta(hours=5)))
+            day = new_dt.strftime("%d/%m")
+            start_time = new_dt.strftime("%H:%M")
+            time_string = f'{day} в {start_time} (UTC+5, Екатеринбург)'
             date_list.append({'date_str': time_string, 'id_event': id})
             data[f'date_str_{id}'] = time_string
             data[f'outlook_{id}'] = event.object_id
         kb = keyboards.inline.Users.date_list(date_list)
-        await message.reply("Выбирите дату для собеседования", reply_markup=kb)
+        await message.reply("Выберите дату для собеседования", reply_markup=kb)
 
 
 async def process_date(query: types.CallbackQuery, callback_data: dict, bot, state: FSMContext):
