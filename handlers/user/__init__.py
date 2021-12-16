@@ -2,7 +2,7 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters import CommandStart, CommandHelp
 from .help import bot_help
 from .start import bot_start
-from .aboutCompany import about_company
+from .about_company import about_company
 from .vacancy import bot_vacancy_list, bot_vacancy
 from .interview import *
 import functools
@@ -12,6 +12,7 @@ import re
 
 regex_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 regex_url = r'((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*'
+
 
 def callback(func, **kwargs):
     @functools.wraps(func)
@@ -49,4 +50,3 @@ def setup(dp: Dispatcher):
                                 state=FormInterview.resume)
     dp.register_message_handler(process_motivation, state=FormInterview.motivation)
     dp.register_callback_query_handler(callback(process_date, bot=dp.bot), date_cb.filter(), state=FormInterview.date)
-
