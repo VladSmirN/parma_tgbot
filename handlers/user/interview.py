@@ -113,7 +113,8 @@ async def process_motivation(message: types.Message, state: FSMContext):
             day = event.start.strftime("%m/%d")
             start_time = event.start.strftime("%H:%M")
             end_time = event.start.strftime("%H:%M")
-            time_string = f'{day}  c {start_time} до {end_time}'
+            time_string = str(event.start)
+            #time_string = f'{day}  c {start_time} до {end_time}'
             date_list.append({'date_str': time_string, 'id_event': id})
             data[f'date_str_{id}'] = time_string
             data[f'outlook_{id}'] = event.object_id
