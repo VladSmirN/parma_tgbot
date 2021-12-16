@@ -15,8 +15,8 @@ async def bot_interview(query: types.CallbackQuery, callback_data: dict, bot, st
         data['vacancy_order'] = int(callback_data['order'])
 
     txt = [
-        'Пожалуйста ответьте на вопросы.',
-        'Ваше ФИО:',
+        'Пожалуйста, ответьте на вопросы.',
+        'Введите ФИО.',
     ]
 
     await FormInterview.name.set()
@@ -37,14 +37,14 @@ async def process_name(message: types.Message, state: FSMContext):
         data['name'] = message.text
 
     await FormInterview.next()
-    await message.reply("Какой у вас номер телефона? (пример - 9981234567)")
+    await message.reply("Какой у Вас номер телефона? (пример - 9981234567)")
 
 
 async def process_phone_invalid(message: types.Message):
     """
     Callback for invalid phone
     """
-    return await message.reply("Ваш телефон некорректный (пример - 9981234567).\nКакой у вас номер телефона?")
+    return await message.reply("Ваш телефон некорректный (пример - 9981234567).\nКакой у Вас номер телефона?")
 
 
 async def process_phone(message: types.Message, state: FSMContext):
@@ -55,14 +55,14 @@ async def process_phone(message: types.Message, state: FSMContext):
         data['phone'] = message.text
 
     await FormInterview.next()
-    await message.reply("Какой у вас email?")
+    await message.reply("Какой у Вас email?")
 
 
 async def process_email_invalid(message: types.Message):
     """
     Callback for invalid email
     """
-    return await message.reply("Ваш email некорректный.\nКакой у вас email?")
+    return await message.reply("Ваш email некорректный.\nКакой у Вас email?")
 
 
 async def process_email(message: types.Message, state: FSMContext):
@@ -73,7 +73,7 @@ async def process_email(message: types.Message, state: FSMContext):
         data['email'] = message.text
 
     await FormInterview.next()
-    await message.reply("Отправьте ссылку на ваше резюме.")
+    await message.reply("Отправьте ссылку на Ваше резюме.")
 
 
 async def process_resume_invalid(message: types.Message):
