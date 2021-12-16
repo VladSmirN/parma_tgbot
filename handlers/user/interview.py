@@ -107,6 +107,13 @@ async def process_motivation(message: types.Message, state: FSMContext):
         weekly_free_time = await calendar_helper.weekly_free_time(hr['email_outlook'])
         data['email_outlook'] = hr['email_outlook']
 
+        if not weekly_free_time:
+            await state.finish()
+            await message.reply('В графике работы HR '
+                                'нет свободного времени на этой неделе.',
+                                reply_markup=keyboards.default.MainMenu.main_menu()
+                                )
+
         for index, event in enumerate(weekly_free_time):
             from datetime import timezone, timedelta
             new_dt = event.start.astimezone(timezone(timedelta(hours=5)))
@@ -133,7 +140,7 @@ async def process_date(query: types.CallbackQuery, callback_data: dict, bot, sta
         email_outlook = data['email_outlook']
         id_event_outlook = data[f'outlook_{callback_data["id"]}']
         calendar_helper = CalendarHelper()
-        await calendar_helper.update_event(email_outlook,id_event_outlook, "На рассмотрении")
+        await calendar_helper.update_event(email_outlook, id_event_outlook, "На рассмотрении")
 
         txt_to_user = [
             'Спасибо!',
