@@ -43,7 +43,7 @@ async def change_status(query: types.CallbackQuery, callback_data: dict, bot):
     outlook_status = ''
     if callback_data['status'] == 'accepted':
         txt_status = '<b>Принято</b>'
-        outlook_status = f'Собеседование с {application_form["name"]}, тел. {application_form["phone"]}'
+        outlook_status = f'Собеседование. {application_form["name"]}, тел. {application_form["phone"]}'
         await bot.send_message(application_form["user_telegram_id"], text='\n'.join(txt_to_user_accepted),)
 
     if callback_data['status'] == 'deny':
