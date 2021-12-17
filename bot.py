@@ -1,6 +1,5 @@
 from typing import List, Tuple
-
-import aiojobs as aiojobs
+import aiojobs
 from aiogram import Bot, Dispatcher
 from aiogram.types import ParseMode
 from aiohttp import web
@@ -12,6 +11,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 ngrok.set_auth_token(config.NGROK_TOKEN)
 WEBHOOK_HOST = ngrok.connect(config.PORT, bind_tls=True).public_url
 WEBHOOK_URL = f"{WEBHOOK_HOST}{config.WEBHOOK_PATH}"
+
 
 # noinspection PyUnusedLocal
 async def on_startup(app: web.Application):

@@ -10,9 +10,7 @@ db = BaseMongo.get_data_base()
 
 
 async def bot_vacancy_list(msg: types.Message):
-    txt = [
-        'Выберите подходящую вакансию.'
-    ]
+    txt = ['Выберите подходящую вакансию.']
     vacancies_list = []
 
     for Vacancies in await db.Vacancies.find({'order': {'$lt': 100}}).sort('order').to_list(length=100):
