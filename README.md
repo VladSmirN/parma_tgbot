@@ -62,9 +62,11 @@ git clone https://github.com/VladSmirN/parma_tgbot
 
 Запускаем бота следующей командой:
 ```shell
-sudo docker-compose -f docker-compose.prod.yml up —build -d 
+sudo docker-compose -f docker-compose.prod.yml up --build -d 
 ```
 ## Использование
+
+К сожалению, это только MVP, поэтому здесь много чего нет. Единственный способ установить HR и вакансии: зайти в Mongo Express. После добавления данных в соответствующие коллекции, бот будет корректно работать. Мы добавим хороший интерфейс следующими патчами.
 
 ## Отдельное спасибо
 Наш бот не состоялся бы, если не [aiogram](https://github.com/aiogram/aiogram), [aiogram-bot-template](https://github.com/Forden/aiogram-bot-template), [loguru](https://github.com/Delgan/loguru), [pyngrok](https://github.com/alexdlaird/pyngrok), [motor](https://github.com/mongodb/motor/), [O365 Python](https://github.com/O365/python-o365)
