@@ -22,21 +22,19 @@ async def change_status(query: types.CallbackQuery, callback_data: dict, bot):
     await db.ApplicationForm.replace_one({'_id': ObjectId(callback_data['application_form'])},
                                          application_form)
 
-
-
-    txt_to_user_deny= [
+    txt_to_user_deny = [
         f'Здравствуйте, {application_form["name"]}!',
         f'Большое спасибо за интерес, проявленный к вакансии {application_form["vacancy_name"]}.',
         'К сожалению, в настоящий момент мы не готовы пригласить Вас на дальнейшее интервью по этой вакансии.',
-        'Мы внимательно ознакомились с Вашим резюме, и, возможно, вернемся к Вашей кандидатуре, когда у нас возникнет такая потребность.',
+        'Мы внимательно ознакомились с Вашим резюме, и, возможно, вернемся к Вашей кандидатуре, когда у нас возникнет '
+        'такая потребность.',
         'С уважением,',
         f'{hr["fio"]}'
-
     ]
 
     txt_to_user_accepted = [
         f'Здравствуйте, {application_form["name"]}, нас заинтересовала ваша анкета.',
-        'Ожидайте звонка от hr-специалиста в ближайшее время для подтверждения даты и места собеседования.',
+        'Ожидайте звонка от HR-специалиста в ближайшее время для подтверждения даты и места собеседования.',
         f'С уважением, {hr["fio"]}',
         f'{hr["phone"]}'
     ]
@@ -45,7 +43,7 @@ async def change_status(query: types.CallbackQuery, callback_data: dict, bot):
     outlook_status = ''
     if callback_data['status'] == 'accepted':
         txt_status = '<b>Принято</b>'
-        outlook_status = 'Занято'
+        outlook_status = f'Собеседование. {application_form["name"]}, тел. {application_form["phone"]}'
         await bot.send_message(application_form["user_telegram_id"], text='\n'.join(txt_to_user_accepted),)
 
     if callback_data['status'] == 'deny':
@@ -66,15 +64,12 @@ async def change_status(query: types.CallbackQuery, callback_data: dict, bot):
     ]
 
     await bot.edit_message_text(chat_id=application_form["hr_telegram_id"],
-                               message_id=int(query['message']['message_id']),
-                               text='\n'.join(txt_to_hr))
+                                message_id=int(query['message']['message_id']),
+                                text='\n'.join(txt_to_hr)
+                                )
 
     calendar_helper = CalendarHelper()
     await calendar_helper.update_event(hr['email_outlook'], application_form['id_event_outlook'], outlook_status)
 
     logger.info(f"/change_status HR user_id={query.from_user.id} . successfully")
     await query.answer()
-
-
-
-

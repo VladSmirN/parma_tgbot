@@ -15,14 +15,19 @@ async def bot_interview(query: types.CallbackQuery, callback_data: dict, bot, st
         data['vacancy_order'] = int(callback_data['order'])
 
     txt = [
-        'Пожалуйста ответьте на вопросы.',
-        'Ваше ФИО:',
+        'Пожалуйста, ответьте на вопросы.',
+        'Введите ФИО.',
     ]
 
     await FormInterview.name.set()
     await bot.send_message(query['from']['id'], text='\n'.join(txt), reply_markup=keyboards.default.MainMenu.cancel())
     await query.answer()
 
+async def process_name_invalid(message: types.Message):
+    """
+    Callback for invalid name
+    """
+    return await message.reply("Ваш ФИО некорректный (пример - Иван Иванов Иванович).\nПожалуйста, введите еще раз.")
 
 async def process_name(message: types.Message, state: FSMContext):
     """
@@ -32,14 +37,14 @@ async def process_name(message: types.Message, state: FSMContext):
         data['name'] = message.text
 
     await FormInterview.next()
-    await message.reply("Какой у вас номер телефона? (пример - 9981234567)")
+    await message.reply("Какой у Вас номер телефона? (пример - 9981234567)")
 
 
 async def process_phone_invalid(message: types.Message):
     """
     Callback for invalid phone
     """
-    return await message.reply("Ваш телефон некорректный (пример - 9981234567).\nКакой у вас номер телефона?")
+    return await message.reply("Ваш телефон некорректный (пример - 9981234567).\nКакой у Вас номер телефона?")
 
 
 async def process_phone(message: types.Message, state: FSMContext):
@@ -50,14 +55,14 @@ async def process_phone(message: types.Message, state: FSMContext):
         data['phone'] = message.text
 
     await FormInterview.next()
-    await message.reply("Какой у вас email?")
+    await message.reply("Какой у Вас email?")
 
 
 async def process_email_invalid(message: types.Message):
     """
     Callback for invalid email
     """
-    return await message.reply("Ваш email некорректный.\nКакой у вас email?")
+    return await message.reply("Ваш email некорректный.\nКакой у Вас email?")
 
 
 async def process_email(message: types.Message, state: FSMContext):
@@ -68,7 +73,7 @@ async def process_email(message: types.Message, state: FSMContext):
         data['email'] = message.text
 
     await FormInterview.next()
-    await message.reply("Отправьте ссылку на ваше резюме.")
+    await message.reply("Отправьте ссылку на Ваше резюме.")
 
 
 async def process_resume_invalid(message: types.Message):
@@ -87,7 +92,14 @@ async def process_resume(message: types.Message, state: FSMContext):
 
     await FormInterview.next()
 
-    await message.reply("Почему вас заинтересовала эта вакансия?")
+    await message.reply("Почему Вас заинтересовала эта вакансия?")
+
+
+async def process_motivation_invalid(message: types.Message):
+    """
+    Callback for invalid motivation
+    """
+    return await message.reply("Вы написали слишком длинный текст, нужно уложиться в 256 символов.\nПожалуйста, введите еще раз.")
 
 
 async def process_motivation(message: types.Message, state: FSMContext):
@@ -107,18 +119,25 @@ async def process_motivation(message: types.Message, state: FSMContext):
         weekly_free_time = await calendar_helper.weekly_free_time(hr['email_outlook'])
         data['email_outlook'] = hr['email_outlook']
 
-        id = 0
-        for event in weekly_free_time:
-            id += 1
-            day = event.start.strftime("%m/%d")
-            start_time = event.start.strftime("%H:%M")
-            end_time = event.start.strftime("%H:%M")
-            time_string = f'{day}  c {start_time} до {end_time}'
-            date_list.append({'date_str': time_string, 'id_event': id})
-            data[f'date_str_{id}'] = time_string
-            data[f'outlook_{id}'] = event.object_id
+        if not weekly_free_time:
+            await state.finish()
+            await message.reply('К сожалению, у HR сейчас '
+                                'нет свободного времени, попробуйте отправить отклик в другое время',
+                                reply_markup=keyboards.default.MainMenu.main_menu()
+                                )
+            return
+
+        for index, event in enumerate(weekly_free_time):
+            from datetime import timezone, timedelta
+            new_dt = event.start.astimezone(timezone(timedelta(hours=5)))
+            day = new_dt.strftime("%d/%m")
+            start_time = new_dt.strftime("%H:%M")
+            time_string = f'{day} в {start_time} (UTC+5, Екатеринбург)'
+            date_list.append({'date_str': time_string, 'id_event': index})
+            data[f'date_str_{index}'] = time_string
+            data[f'outlook_{index}'] = event.object_id
         kb = keyboards.inline.Users.date_list(date_list)
-        await message.reply("Выбирите дату для собеседования", reply_markup=kb)
+        await message.reply("Выберите дату для собеседования", reply_markup=kb)
 
 
 async def process_date(query: types.CallbackQuery, callback_data: dict, bot, state: FSMContext):
@@ -134,7 +153,7 @@ async def process_date(query: types.CallbackQuery, callback_data: dict, bot, sta
         email_outlook = data['email_outlook']
         id_event_outlook = data[f'outlook_{callback_data["id"]}']
         calendar_helper = CalendarHelper()
-        await calendar_helper.update_event(email_outlook,id_event_outlook, "На рассмотрение")
+        await calendar_helper.update_event(email_outlook, id_event_outlook, "На рассмотрении")
 
         txt_to_user = [
             'Спасибо!',
@@ -142,7 +161,9 @@ async def process_date(query: types.CallbackQuery, callback_data: dict, bot, sta
         ]
 
         vacancy = await db.Vacancies.find_one({"order": int(data['vacancy_order'])})
-
+        username_telegram = 'не указан'
+        if 'username' in query['from']:
+            username_telegram = query['from']['username']
         result = await db.ApplicationForm.insert_one({
             "hr_telegram_id": vacancy['hr_telegram_id'],
             "name": data['name'],
@@ -153,7 +174,7 @@ async def process_date(query: types.CallbackQuery, callback_data: dict, bot, sta
             "date": date_str,
             "vacancy_order": data['vacancy_order'],
             "vacancy_name": vacancy['name'],
-            "username_telegram": query['from']['username'],
+            "username_telegram": username_telegram,
             "user_telegram_id": query['from']['id'],
             "status": "waiting",
             'id_event_outlook': id_event_outlook
@@ -162,7 +183,7 @@ async def process_date(query: types.CallbackQuery, callback_data: dict, bot, sta
         txt_to_hr = [
             'Новый отклик!',
             'Вакансия: ' + vacancy['name'],
-            'Username пользователя: ' + query['from']['username'],
+            'Username пользователя: ' + username_telegram,
             'ФИО в анкете: ' + data['name'],
             'Телефон: ' + data['phone'],
             'Email: ' + data['email'],
