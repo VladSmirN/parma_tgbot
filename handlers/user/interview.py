@@ -15,14 +15,19 @@ async def bot_interview(query: types.CallbackQuery, callback_data: dict, bot, st
         data['vacancy_order'] = int(callback_data['order'])
 
     txt = [
-        'Пожалуйста ответьте на вопросы.',
-        'Ваше ФИО:',
+        'Пожалуйста, ответьте на вопросы.',
+        'Введите ФИО.',
     ]
 
     await FormInterview.name.set()
     await bot.send_message(query['from']['id'], text='\n'.join(txt), reply_markup=keyboards.default.MainMenu.cancel())
     await query.answer()
 
+async def process_name_invalid(message: types.Message):
+    """
+    Callback for invalid name
+    """
+    return await message.reply("Ваш ФИО некорректный (пример - Иван Иванов Иванович).\nПожалуйста, введите еще раз.")
 
 async def process_name(message: types.Message, state: FSMContext):
     """
@@ -32,14 +37,14 @@ async def process_name(message: types.Message, state: FSMContext):
         data['name'] = message.text
 
     await FormInterview.next()
-    await message.reply("Какой у вас номер телефона? (пример - 9981234567)")
+    await message.reply("Какой у Вас номер телефона? (пример - 9981234567)")
 
 
 async def process_phone_invalid(message: types.Message):
     """
     Callback for invalid phone
     """
-    return await message.reply("Ваш телефон некорректный (пример - 9981234567).\nКакой у вас номер телефона?")
+    return await message.reply("Ваш телефон некорректный (пример - 9981234567).\nКакой у Вас номер телефона?")
 
 
 async def process_phone(message: types.Message, state: FSMContext):
@@ -50,14 +55,14 @@ async def process_phone(message: types.Message, state: FSMContext):
         data['phone'] = message.text
 
     await FormInterview.next()
-    await message.reply("Какой у вас email?")
+    await message.reply("Какой у Вас email?")
 
 
 async def process_email_invalid(message: types.Message):
     """
     Callback for invalid email
     """
-    return await message.reply("Ваш email некорректный.\nКакой у вас email?")
+    return await message.reply("Ваш email некорректный.\nКакой у Вас email?")
 
 
 async def process_email(message: types.Message, state: FSMContext):
@@ -68,7 +73,7 @@ async def process_email(message: types.Message, state: FSMContext):
         data['email'] = message.text
 
     await FormInterview.next()
-    await message.reply("Отправьте ссылку на ваше резюме.")
+    await message.reply("Отправьте ссылку на Ваше резюме.")
 
 
 async def process_resume_invalid(message: types.Message):
@@ -87,7 +92,14 @@ async def process_resume(message: types.Message, state: FSMContext):
 
     await FormInterview.next()
 
-    await message.reply("Почему вас заинтересовала эта вакансия?")
+    await message.reply("Почему Вас заинтересовала эта вакансия?")
+
+
+async def process_motivation_invalid(message: types.Message):
+    """
+    Callback for invalid motivation
+    """
+    return await message.reply("Вы написали слишком длинный текст, нужно уложиться в 256 символов.\nПожалуйста, введите еще раз.")
 
 
 async def process_motivation(message: types.Message, state: FSMContext):
