@@ -139,4 +139,5 @@ dmypy.json
 .idea/vagrant.xml
 .idea/vcs.xml
 /bot/
-/mongo/
+/mongo/db-data/
+/mongo/mongo-config/
