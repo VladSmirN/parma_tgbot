@@ -23,5 +23,5 @@ mongo = {
     'password': 'root',
     'username':  'example',
     'port': 27017,
-    'database': 'telegram_bot'
+    'database': 'english_bot'
 }
