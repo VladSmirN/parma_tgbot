@@ -1,20 +1,27 @@
 from aiogram import types
 
 from .consts import InlineConstructor
-from .callbacks import vacancy_cb, to_interview_cb, date_cb
+from .callbacks import topic_cb, to_interview_cb, date_cb, word_cb
 
 
 class Users():
     @staticmethod
-    def vacancy_list(vacancy_list):
+    def topics_list(vacancy_list):
         buttons = []
         for Vacancy in vacancy_list:
-            buttons.append(types.InlineKeyboardButton(text=Vacancy['name'],
-                                                      callback_data=vacancy_cb.new(order=Vacancy['order'])))
+            buttons.append(types.InlineKeyboardButton(text=Vacancy['Name'],
+                                                      callback_data=topic_cb.new(order=Vacancy['order'])))
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(*buttons)
         return keyboard
-
+    def word_list(word_list_):
+        buttons = []
+        for word in word_list_:
+            buttons.append(types.InlineKeyboardButton(text=word['Translate'],
+                                                      callback_data=word_cb.new(order=word['order'])))
+        keyboard = types.InlineKeyboardMarkup(row_width=2)
+        keyboard.add(*buttons)
+        return keyboard
     @staticmethod
     def to_interview(vacancy_order):
         buttons = [types.InlineKeyboardButton(text='Пройти собеседование',
@@ -32,3 +39,4 @@ class Users():
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(*buttons)
         return keyboard
+
