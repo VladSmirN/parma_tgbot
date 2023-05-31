@@ -26,7 +26,7 @@ def setup(dp: Dispatcher):
     dp.register_message_handler(bot_start, CommandStart())
     dp.register_message_handler(bot_help, CommandHelp())
     dp.register_message_handler(bot_vacancy_list, text=['Запомнить слово'], state="*")
-    dp.register_message_handler(about_company, text=['О компании'], state="*")
+    dp.register_message_handler(about_company, text=['О приложение'], state="*")
     dp.register_callback_query_handler(callback(bot_vacancy, bot=dp.bot), vacancy_cb.filter())
     dp.register_callback_query_handler(callback(bot_interview, bot=dp.bot), to_interview_cb.filter())
     dp.register_message_handler(cancel_handler, text=['Закрыть'], state="*")
