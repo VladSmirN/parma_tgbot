@@ -6,8 +6,8 @@ class MainMenu(DefaultConstructor):
     def main_menu():
         schema = [2]
         actions = [
-            'Список вакансий',
-            'О компании',
+            'Запомнить слово',
+            'О приложение',
         ]
         return MainMenu._create_kb(actions, schema)
 
