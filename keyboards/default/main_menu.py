@@ -4,10 +4,12 @@ from .consts import DefaultConstructor
 class MainMenu(DefaultConstructor):
     @staticmethod
     def main_menu():
-        schema = [2]
+        schema = [1,1,1,1]
         actions = [
-            'Запомнить слово',
-            'О приложение',
+            'Учить слова',
+            'Пройти тест',
+            'Прочитать текст',
+            'Мой профиль',
         ]
         return MainMenu._create_kb(actions, schema)
 

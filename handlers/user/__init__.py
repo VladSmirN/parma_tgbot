@@ -3,8 +3,10 @@ from aiogram.dispatcher.filters import CommandStart, CommandHelp
 from .help import bot_help
 from .start import bot_start
 from .about_company import about_company
-from .topics import bot_topics_list, bot_topic
+from .topics import bot_topics_list_test, bot_topic, bot_topics_list_learning
 from .word_knowledge_test import bot_word_knowledge_test,bot_word_knowledge_test_end
+from .word_learning import bot_word_learning
+
 from .interview import *
 import functools
 from keyboards.inline import *
@@ -26,9 +28,14 @@ def callback(func, **kwargs):
 def setup(dp: Dispatcher):
     dp.register_message_handler(bot_start, CommandStart())
     dp.register_message_handler(bot_help, CommandHelp())
-    dp.register_message_handler(bot_topics_list, text=['Запомнить слово'], state="*")
+    dp.register_message_handler(bot_topics_list_test, text=['Пройти тест'], state="*")
+    dp.register_message_handler(bot_topics_list_learning, text=['Учить слова'], state="*")
     dp.register_message_handler(about_company, text=['О приложение'], state="*")
-    dp.register_callback_query_handler(callback(bot_word_knowledge_test, bot=dp.bot), topic_cb.filter())
+
+    dp.register_callback_query_handler(callback(bot_word_learning, bot=dp.bot), topic_learning_cb.filter())
+
+
+    dp.register_callback_query_handler(callback(bot_word_knowledge_test, bot=dp.bot), topic_test_cb.filter())
     dp.register_callback_query_handler(callback(bot_word_knowledge_test_end, bot=dp.bot), word_cb.filter())
     # dp.register_callback_query_handler(callback(bot_word_knowledge_test, bot=dp.bot), to_interview_cb.filter())
     dp.register_message_handler(cancel_handler, text=['Закрыть'], state="*")
