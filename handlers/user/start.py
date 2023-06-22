@@ -8,7 +8,7 @@ import keyboards.default
 import states.user
 
 
-async def bot_start(msg: types.Message, state: FSMContext):
+async def bot_start(msg: types.Message, bot , state: FSMContext):
     db = BaseMongo.get_data_base()
     user = await db.Users.find_one({
         "telegram_id": msg.from_user.id
@@ -24,7 +24,15 @@ async def bot_start(msg: types.Message, state: FSMContext):
         logger.info(
             f"/start user_id={msg.from_user.id} insert_one result={result.acknowledged} id={result.inserted_id}")
 
-        await msg.answer(f'Привет, {msg.from_user.full_name}!')
+        txt = [f'Привет, {msg.from_user.full_name}! Это чат-бот EngLearn. Я буду твоим помощником в изучении английкого языка!',
+               'Со мной ты можешь:',
+               f'изучать новые слова по категория, ',
+               f'проходить тестирование по изученным словам,',
+               'читать тексты, в которых есть изучаемые тобой слова и отвечать на вопросы по ним'
+               ]
+        photo = open(f'images/start.jpg', 'rb')
+        await bot.send_photo(msg.from_user.id, photo, caption='\n'.join(txt))
+
 
     await msg.answer(f'Главное меню', reply_markup=keyboards.default.MainMenu.main_menu())
 

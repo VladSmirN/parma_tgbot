@@ -28,7 +28,7 @@ def callback(func, **kwargs):
 
 
 def setup(dp: Dispatcher):
-    dp.register_message_handler(bot_start, CommandStart())
+    dp.register_message_handler(callback(bot_start, bot=dp.bot), CommandStart())
     dp.register_message_handler(bot_help, CommandHelp())
     dp.register_message_handler(bot_topics_list_test, text=['Пройти тест'], state="*")
     dp.register_message_handler(bot_topics_list_learning, text=['Учить слова'], state="*")
