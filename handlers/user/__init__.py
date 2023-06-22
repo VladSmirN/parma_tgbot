@@ -7,6 +7,7 @@ from .topics import *
 from .word_knowledge_test import bot_word_knowledge_test,bot_word_knowledge_test_end
 from .word_learning import bot_word_learning
 from .text_test import *
+from .profile import *
 
 from .interview import *
 import functools
@@ -32,6 +33,7 @@ def setup(dp: Dispatcher):
     dp.register_message_handler(bot_topics_list_test, text=['Пройти тест'], state="*")
     dp.register_message_handler(bot_topics_list_learning, text=['Учить слова'], state="*")
     dp.register_message_handler(bot_topics_list_test_text, text=['Прочитать текст'], state="*")
+    dp.register_message_handler(bot_profile, text=['Мой профиль'], state="*")
 
     dp.register_message_handler(about_company, text=['О приложение'], state="*")
 
@@ -42,6 +44,8 @@ def setup(dp: Dispatcher):
     dp.register_callback_query_handler(callback(bot_word_knowledge_test_end, bot=dp.bot), word_cb.filter())
 
     dp.register_callback_query_handler(callback(bot_text_test_end, bot=dp.bot), text_answer_cb.filter())
+
+
 
     # dp.register_callback_query_handler(callback(bot_word_knowledge_test, bot=dp.bot), to_interview_cb.filter())
     dp.register_message_handler(cancel_handler, text=['Закрыть'], state="*")

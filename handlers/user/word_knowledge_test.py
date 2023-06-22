@@ -53,7 +53,9 @@ async def bot_word_knowledge_test_end(query: types.CallbackQuery, callback_data:
         choose_word = await db.Contents_dictionaries.find_one({"order": int(callback_data['order'])})
         user = await db.Users.find_one({"telegram_id": query['from']['id']})
         priority = 0
+        status = 0
         if data['id_word'] != choose_word['_id']:
+            status = 0
             priority = 1
             txt = [
                 f'Ответ не верный (.'
@@ -63,19 +65,28 @@ async def bot_word_knowledge_test_end(query: types.CallbackQuery, callback_data:
                 f'Ответ верный, отличный результат.'
             ]
             priority = 0
+            status = 1
 
-        old_dictionary = await db.Dictionary.find_one({"id_word": data['id_word'], "id_user": user["_id"]})
-
-        if old_dictionary is None:
-            await db.Dictionary.insert_one({
-                "id_word": data['id_word'],
-                "id_user": user["_id"],
-                "date": dt.datetime.now(),
-                "priority": priority
-            })
-        else:
-            await db.Dictionary.update_one({'_id': old_dictionary['_id']}, {'$set': {'date': dt.datetime.now(),
-                                                                                     "priority": priority}})
+        await db.Dictionary.insert_one({
+            "id_word": data['id_word'],
+            "id_user": user["_id"],
+            "date": dt.datetime.now(),
+            "priority": priority,
+            "status": status
+        })
+        # old_dictionary = await db.Dictionary.find_one({"id_word": data['id_word'], "id_user": user["_id"]})
+        #
+        # if old_dictionary is None:
+        #     await db.Dictionary.insert_one({
+        #         "id_word": data['id_word'],
+        #         "id_user": user["_id"],
+        #         "date": dt.datetime.now(),
+        #         "priority": priority,
+        #         "status": status
+        #     })
+        # else:
+        #     await db.Dictionary.update_one({'_id': old_dictionary['_id']}, {'$set': {'date': dt.datetime.now(),
+        #                                                                              "priority": priority, "status":status}})
 
 
         await state.finish()
