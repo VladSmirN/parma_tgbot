@@ -3,7 +3,12 @@ from aiogram.dispatcher.filters import CommandStart, CommandHelp
 from .help import bot_help
 from .start import bot_start
 from .about_company import about_company
-from .vacancy import bot_vacancy_list, bot_vacancy
+from .topics import *
+from .word_knowledge_test import bot_word_knowledge_test,bot_word_knowledge_test_end
+from .word_learning import bot_word_learning
+from .text_test import *
+from .profile import *
+
 from .interview import *
 import functools
 from keyboards.inline import *
@@ -23,12 +28,26 @@ def callback(func, **kwargs):
 
 
 def setup(dp: Dispatcher):
-    dp.register_message_handler(bot_start, CommandStart())
+    dp.register_message_handler(callback(bot_start, bot=dp.bot), CommandStart())
     dp.register_message_handler(bot_help, CommandHelp())
-    dp.register_message_handler(bot_vacancy_list, text=['Список вакансий'], state="*")
-    dp.register_message_handler(about_company, text=['О компании'], state="*")
-    dp.register_callback_query_handler(callback(bot_vacancy, bot=dp.bot), vacancy_cb.filter())
-    dp.register_callback_query_handler(callback(bot_interview, bot=dp.bot), to_interview_cb.filter())
+    dp.register_message_handler(bot_topics_list_test, text=['Пройти тест'], state="*")
+    dp.register_message_handler(bot_topics_list_learning, text=['Учить слова'], state="*")
+    dp.register_message_handler(bot_topics_list_test_text, text=['Прочитать текст'], state="*")
+    dp.register_message_handler(bot_profile, text=['Мой профиль'], state="*")
+
+    dp.register_message_handler(about_company, text=['О приложение'], state="*")
+
+    dp.register_callback_query_handler(callback(bot_word_learning, bot=dp.bot), topic_learning_cb.filter())
+    dp.register_callback_query_handler(callback(bot_text_test, bot=dp.bot), topic_text_test_cb.filter())
+
+    dp.register_callback_query_handler(callback(bot_word_knowledge_test, bot=dp.bot), topic_test_cb.filter())
+    dp.register_callback_query_handler(callback(bot_word_knowledge_test_end, bot=dp.bot), word_cb.filter())
+
+    dp.register_callback_query_handler(callback(bot_text_test_end, bot=dp.bot), text_answer_cb.filter())
+
+
+
+    # dp.register_callback_query_handler(callback(bot_word_knowledge_test, bot=dp.bot), to_interview_cb.filter())
     dp.register_message_handler(cancel_handler, text=['Закрыть'], state="*")
     dp.register_message_handler(process_name_invalid,
                                 lambda message: not re.fullmatch(regex_fio, message.text) or not len(message.text) <= 128,
